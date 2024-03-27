@@ -1,0 +1,6 @@
+@MongoDB.Microservice.Blog_HostAddress = http://localhost:5022
+
+GET {{MongoDB.Microservice.Blog_HostAddress}}/Home/Get
+Accept: application/json
+
+###
