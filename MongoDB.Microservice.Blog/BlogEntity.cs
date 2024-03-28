@@ -26,8 +26,8 @@ namespace MongoDB.Microservice.Blog
         [BsonId]
         [BsonElement("_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? id { get; set; }
-       // public int? id { get; set; }
+        public string? _id { get; set; }
+        public int? id { get; set; }
         public string? Title { get; set; }
         public string? body { get; set; }
         public int? creatorId { get; set; }
