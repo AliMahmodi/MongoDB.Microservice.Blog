@@ -27,20 +27,20 @@ namespace MongoDB.Microservice.Blog.Controllers
                 .SortByDescending(e => e.publishDate)
                 .Skip((pageIndex - 1) * pageSize)
                 .Limit(pageSize)
-                .Project(x => new BlogEntity {id = x.id, Title = x.Title, publishDate = x.publishDate })
+                .Project(x => new BlogEntity {id = x._id, Title = x.Title, publishDate = x.publishDate })
                 .ToListAsync();
 
             return blogs;
         }
 
         [HttpGet]
-        public Task<BlogDetails> Details(string  id)
+        public async Task<BlogDetails> Details(string  id)
         {
             var client = new MongoClient("mongodb://localhost:27017");
             var filter = Builders<BlogDetails>.Filter.Empty;
             var blogs = client.GetDatabase("MongoBlog").GetCollection<BlogDetails>("Blogs")
-                .Find(Builders<BlogDetails>.Filter.Eq(e=>e.id ,id ))
-                .FirstOrDefaultAsync();
+                .Find(Builders<BlogDetails>.Filter.Eq(e=>e._id ,id ))
+                .FirstOrDefault();
 
             return blogs;
         }
