@@ -38,9 +38,9 @@ namespace MongoDB.Microservice.Blog.Controllers
         {
             var client = new MongoClient("mongodb://localhost:27017");
             var filter = Builders<BlogDetails>.Filter.Empty;
-            var blogs = client.GetDatabase("MongoBlog").GetCollection<BlogDetails>("Blogs")
+            var blogs =await client.GetDatabase("MongoBlog").GetCollection<BlogDetails>("Blogs")
                 .Find(Builders<BlogDetails>.Filter.Eq(e=>e._id ,id ))
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             return blogs;
         }
