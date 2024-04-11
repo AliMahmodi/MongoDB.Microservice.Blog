@@ -1,4 +1,12 @@
+using MongoDB.Microservice.Blog.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+//var configuration = builder.Configuration;
+//var mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:ConnectionString");
+//var mongoDbDatabaseName = configuration.GetValue<string>("MongoDBSettings:DatabaseName");
+var allowedHosts = new string[] { "http://localhost:5173","http://localhost:5022" };
+
 
 // Add services to the container.
 
@@ -7,8 +15,12 @@ builder.Services.AddCors(c => c.AddPolicy("CORSpolicy",
     p => 
     p.AllowAnyHeader()
     .AllowAnyMethod()
-    .WithOrigins("http://localhost:5173")
+    //.AllowAnyOrigin()
+    .WithOrigins(allowedHosts)
 ));
+
+
+builder.Services.AddSingleton<BlogMongoDbContext>();
 
 
 var app = builder.Build();
