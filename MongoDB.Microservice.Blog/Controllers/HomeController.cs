@@ -15,15 +15,19 @@ namespace MongoDB.Microservice.Blog.Controllers
     public class HomeController : ControllerBase
     {
 
-        
+
         private readonly ILogger<HomeController> _logger;
         private readonly BlogMongoDbContext _db;
+        private readonly IConfiguration _config;
+        private readonly string postsCollectionName;
 
 
-        public HomeController(ILogger<HomeController> logger, BlogMongoDbContext db)
+        public HomeController(ILogger<HomeController> logger, BlogMongoDbContext db, IConfiguration config)
         {
             _logger = logger;
             _db = db;
+            _config = config;
+            postsCollectionName = _config.GetValue<string>("MongoDBSettings:PostsCollectionName");
         }
 
         [HttpGet]
@@ -32,18 +36,18 @@ namespace MongoDB.Microservice.Blog.Controllers
         {
             var db = _db.GetDatabase();
 
-            var sort = Builders<BlogDetails>.Sort.Descending(x => x.id);
+            var sort = Builders<BlogDetails>.Sort.Descending(x => x.Id);
             var filter = Builders<BlogDetails>.Filter.Empty;
 
             //var t=Stopwatch.StartNew();
 
-            //var data= await db.GetCollection<BlogDetails>("Blogs").AggregateByPageAsync(filter, sort,pageIndex,pageSize);
+            //var data= await db.GetCollection<BlogDetails>(postsCollectionName).AggregateByPageAsync(filter, sort,pageIndex,pageSize);
             //t.Stop();
             //var ttt= t.ElapsedMilliseconds;
 
             //t.Restart();
 
-            var blogs = await db.GetCollection<BlogDetails>("Blogs")
+            var blogs = await db.GetCollection<BlogDetails>(postsCollectionName)
                 .Find(Builders<BlogDetails>.Filter.Empty)
                 .Sort(sort)
                 .Skip((pageIndex - 1) * pageSize)
@@ -59,15 +63,22 @@ namespace MongoDB.Microservice.Blog.Controllers
         }
 
         [HttpGet]
-        public async Task<BlogDetails> Details(string  id)
+        public async Task<BlogDetails> Details(int id)
         {
+            try
+            {
             var db = _db.GetDatabase();
-            var filter = Builders<BlogDetails>.Filter.Eq(e => e._id, id);
-            var blogs =await db.GetCollection<BlogDetails>("Blogs")
+            var filter = Builders<BlogDetails>.Filter.Eq(e => e.Id, id);
+            var blogs = await db.GetCollection<BlogDetails>(postsCollectionName)
                 .Find(filter)
                 .FirstOrDefaultAsync();
 
             return blogs;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }
