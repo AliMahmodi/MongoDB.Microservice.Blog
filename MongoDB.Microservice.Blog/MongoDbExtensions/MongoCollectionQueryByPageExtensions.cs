@@ -37,7 +37,7 @@ namespace MongoDB.Microservice.Blog.MongoDbExtensions
                 ?.FirstOrDefault()
                 ?.Count;
 
-            var totalPages = (int)Math.Ceiling((double)count / pageSize);
+            var totalPages = (int)Math.Ceiling((double)(count??0) / pageSize);
 
             var data = aggregation.First()
                 .Facets.First(x => x.Name == "data")
