@@ -27,13 +27,19 @@ namespace MongoDB.Microservice.Blog.Controllers
             _logger = logger;
             _db = db;
             _config = config;
-            postsCollectionName = _config.GetValue<string>("MongoDBSettings:PostsCollectionName");
+            postsCollectionName = _config.GetValue<string>("MongoDBSettings:PostsCollectionName") ?? throw new Exception("MongoDBSettings:PostsCollectionName not defined in appSettings.json");
         }
 
         [HttpGet]
         //public async Task<IReadOnlyList<BlogDetails>> Get(int pageSize = 10, int pageIndex = 1)
-        public async Task<List<BlogDetails>> Get(int pageSize = 10, int pageIndex = 1)
+        public async Task<List<BlogEntity>> Get(int pageSize = 10, int pageIndex = 1)
         {
+            if(pageIndex<1 || pageIndex>5000000 || pageSize >= 50 || pageSize<1 || pageIndex*pageSize>=5000000 )
+            {
+                return new List<BlogEntity>();
+            }
+
+
             var db = _db.GetDatabase();
 
             var sort = Builders<BlogDetails>.Sort.Descending(x => x.Id);
@@ -52,9 +58,13 @@ namespace MongoDB.Microservice.Blog.Controllers
                 .Sort(sort)
                 .Skip((pageIndex - 1) * pageSize)
                 .Limit(pageSize)
-                //.Project(x => new BlogEntity { id = x._id, Title = x.Title, publishDate = x.publishDate })
+                .Project(x => new BlogEntity { Id = x.Id, Title = x.Title, PublishDate = x.PublishDate, CreateUserName=x.CreateUserName })
                 .ToListAsync();
 
+            foreach (var blog in blogs)
+            {
+                blog.PublishDateStr = blog.PublishDate?.DateInDeatilWithTimePersian();
+            }
             //t.Stop();
             //var tttt = t.ElapsedMilliseconds;
 

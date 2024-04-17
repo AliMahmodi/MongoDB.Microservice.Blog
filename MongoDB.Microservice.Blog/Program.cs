@@ -5,10 +5,10 @@ using MongoDB.Microservice.Blog.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
-var mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:ConnectionString");
+var mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:ConnectionString") ?? throw new Exception("please Define 'MongoDBSettings:ConnectionString' in appSettings.json'");
 var mongoDbDatabaseName = configuration.GetValue<string>("MongoDBSettings:DatabaseName");
 
-var allowedHosts = new string[] { "http://localhost:5173", "http://localhost:5022" };
+var allowedHosts = new string[] { "http://localhost:5174", "http://localhost:5173", "http://localhost:5022" };
 
 
 // Add services to the container.
