@@ -1,6 +1,7 @@
 using Flexerant.MongoMigration;
 using MongoDB.Driver;
 using MongoDB.Microservice.Blog.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ var mongoDbDatabaseName = configuration.GetValue<string>("MongoDBSettings:Databa
 
 var allowedHosts = new string[] { "http://localhost:5174", "http://localhost:5173", "http://localhost:5022" };
 
+//adding serilog
+builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
 // Add services to the container.
 builder.Services.AddMongoMigrations(options =>
@@ -36,6 +39,9 @@ builder.Services.AddSingleton<BlogMongoDbContext>();
 
 
 var app = builder.Build();
+
+//adding serilog
+app.UseSerilogRequestLogging();
 
 app.UseMongoMigrations();
 

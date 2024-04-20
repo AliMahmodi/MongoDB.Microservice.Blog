@@ -34,7 +34,7 @@ namespace MongoDB.Microservice.Blog.Controllers
         //public async Task<IReadOnlyList<BlogDetails>> Get(int pageSize = 10, int pageIndex = 1)
         public async Task<List<BlogEntity>> Get(int pageSize = 10, int pageIndex = 1)
         {
-            if(pageIndex<1 || pageIndex>5000000 || pageSize >= 50 || pageSize<1 || pageIndex*pageSize>=5000000 )
+            if (pageIndex < 1 || pageIndex > 5000000 || pageSize >= 50 || pageSize < 1 || pageIndex * pageSize >= 5000000)
             {
                 return new List<BlogEntity>();
             }
@@ -45,29 +45,30 @@ namespace MongoDB.Microservice.Blog.Controllers
             var sort = Builders<BlogDetails>.Sort.Descending(x => x.Id);
             var filter = Builders<BlogDetails>.Filter.Empty;
 
-            //var t=Stopwatch.StartNew();
+            var t = Stopwatch.StartNew();
 
-            //var data= await db.GetCollection<BlogDetails>(postsCollectionName).AggregateByPageAsync(filter, sort,pageIndex,pageSize);
-            //t.Stop();
-            //var ttt= t.ElapsedMilliseconds;
+            //var data = await db.GetCollection<BlogDetails>(postsCollectionName).AggregateByPageAsync(filter, sort, pageIndex, pageSize);
+            t.Stop();
+            var ttt = t.ElapsedMilliseconds;
 
-            //t.Restart();
+            t.Restart();
 
             var blogs = await db.GetCollection<BlogDetails>(postsCollectionName)
                 .Find(Builders<BlogDetails>.Filter.Empty)
                 .Sort(sort)
                 .Skip((pageIndex - 1) * pageSize)
                 .Limit(pageSize)
-                .Project(x => new BlogEntity { Id = x.Id, Title = x.Title, PublishDate = x.PublishDate, CreateUserName=x.CreateUserName })
+                .Project(x => new BlogEntity { Id = x.Id, Title = x.Title, PublishDate = x.PublishDate, CreateUserName = x.CreateUserName })
                 .ToListAsync();
+
+            t.Stop();
+            var tttt = t.ElapsedMilliseconds;
 
             foreach (var blog in blogs)
             {
                 blog.PublishDateStr = blog.PublishDate?.DateInDeatilWithTimePersian();
             }
-            //t.Stop();
-            //var tttt = t.ElapsedMilliseconds;
-
+            _logger.LogInformation($"method1 : {ttt.ToString()} ms , method2 : {tttt.ToString()} ms");
             return blogs;
             //return data.data;
         }
