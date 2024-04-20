@@ -23,6 +23,7 @@ namespace MongoDB.Microservice.Blog
         public string? Body { get; set; }
         public int? CreateUserId { get; set; }
         public string? CreateUserName { get; set; }
+        public string? CreateUserLocation { get; set; }
         public IEnumerable<Media>? CreateUserMedias { get; set; }
         public DateTime? CreateUserLatestActitityDate  { get; set; }
         public DateTime? CreateDate { get; set; } = DateTime.UtcNow;
@@ -44,6 +45,16 @@ namespace MongoDB.Microservice.Blog
             }
         }
         public PostType? PostType { get; set; }
+        public int TotalLikesCount { get; set; } = 0;
+        public int TotalCommentsCount { get; set; } = 0;
+        public bool? IsMarkedAsSaved { get; set; } = false;
+        public bool? IsMarkedAsRead { get; set; } = false;
+
+        public bool? IsApprovedByAdmin { get; set; } = false;
+        public DateTime? AdminApproveDate { get; set; }
+        public int? AdminApproverId { get; set; }
+        public string? AdminApproverName { get; set; }
+
     }
 
     public class Media
@@ -83,7 +94,7 @@ namespace MongoDB.Microservice.Blog
 
     public class PostTypeDictionaryClass
     {
-        public static Dictionary<PostType, string> PostTypeDictionary = new Dictionary<PostType, string>()
+        public static Dictionary<PostType, string> PostTypeDictionary = new()
         {
             { PostType.Post, "پست" },
             {PostType.Guid, "راهنمایی"},
