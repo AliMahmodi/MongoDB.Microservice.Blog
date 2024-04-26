@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -12,6 +13,8 @@ namespace MongoDB.Microservice.Blog.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
+    [Authorize("BlogsPolicy")]
+    //[Authorize]
     public class HomeController : ControllerBase
     {
 
@@ -32,45 +35,60 @@ namespace MongoDB.Microservice.Blog.Controllers
 
         [HttpGet]
         //public async Task<IReadOnlyList<BlogDetails>> Get(int pageSize = 10, int pageIndex = 1)
-        public async Task<List<BlogEntity>> Get(int pageSize = 10, int pageIndex = 1)
+        public async Task<List<BlogEntity>> Get(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default)
         {
-            if (pageIndex < 1 || pageIndex > 5000000 || pageSize >= 50 || pageSize < 1 || pageIndex * pageSize >= 5000000)
+            try
             {
-                return new List<BlogEntity>();
+                var totalTime = Stopwatch.StartNew();
+
+                if (pageIndex < 1 || pageIndex > 5000000 || pageSize >= 50 || pageSize < 1 || pageIndex * pageSize >= 5000000)
+                {
+                    return new List<BlogEntity>();
+                }
+
+                var db = _db.GetDatabase();
+
+                var sort = Builders<BlogDetails>.Sort.Descending(x => x.Id);
+                var filter = Builders<BlogDetails>.Filter.Empty;
+
+                var t = Stopwatch.StartNew();
+
+                //var data = await db.GetCollection<BlogDetails>(postsCollectionName).AggregateByPageAsync(filter, sort, pageIndex, pageSize);
+                t.Stop();
+                var ttt = t.ElapsedMilliseconds;
+
+                //await Task.Delay(5000, cancellationToken);
+
+                t.Restart();
+
+                var blogs = await db.GetCollection<BlogDetails>(postsCollectionName)
+                    .Find(Builders<BlogDetails>.Filter.Empty)
+                    .Sort(sort)
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Limit(pageSize)
+                    .Project(x => new BlogEntity { Id = x.Id, Title = x.Title, Body = x.Body , PublishDate = x.PublishDate })
+                    .ToListAsync(cancellationToken);
+
+                foreach (var blog in blogs)
+                {
+                    blog.PublishDateStr = blog.PublishDate?.DateInDeatilWithTimePersian();
+                }
+                t.Stop();
+                var tttt = t.ElapsedMilliseconds;
+                //await Task.Delay(5000, cancellationToken);
+                totalTime.Stop();
+                
+                _logger.LogInformation("method1 : {ttt} ms , method2 : {tttt} ms , totalTime : {totalTime}",ttt,tttt, totalTime.ElapsedMilliseconds );
+                return blogs;
+                //return data.data;
             }
-
-
-            var db = _db.GetDatabase();
-
-            var sort = Builders<BlogDetails>.Sort.Descending(x => x.Id);
-            var filter = Builders<BlogDetails>.Filter.Empty;
-
-            var t = Stopwatch.StartNew();
-
-            //var data = await db.GetCollection<BlogDetails>(postsCollectionName).AggregateByPageAsync(filter, sort, pageIndex, pageSize);
-            t.Stop();
-            var ttt = t.ElapsedMilliseconds;
-
-            t.Restart();
-
-            var blogs = await db.GetCollection<BlogDetails>(postsCollectionName)
-                .Find(Builders<BlogDetails>.Filter.Empty)
-                .Sort(sort)
-                .Skip((pageIndex - 1) * pageSize)
-                .Limit(pageSize)
-                .Project(x => new BlogEntity { Id = x.Id, Title = x.Title, PublishDate = x.PublishDate, CreateUserName = x.CreateUserName })
-                .ToListAsync();
-
-            t.Stop();
-            var tttt = t.ElapsedMilliseconds;
-
-            foreach (var blog in blogs)
+            catch
             {
-                blog.PublishDateStr = blog.PublishDate?.DateInDeatilWithTimePersian();
+                if (cancellationToken.IsCancellationRequested == true)
+                    return new List<BlogEntity>();
+                else
+                    throw;
             }
-            _logger.LogInformation($"method1 : {ttt.ToString()} ms , method2 : {tttt.ToString()} ms");
-            return blogs;
-            //return data.data;
         }
 
         [HttpGet]
@@ -78,13 +96,13 @@ namespace MongoDB.Microservice.Blog.Controllers
         {
             try
             {
-            var db = _db.GetDatabase();
-            var filter = Builders<BlogDetails>.Filter.Eq(e => e.Id, id);
-            var blogs = await db.GetCollection<BlogDetails>(postsCollectionName)
-                .Find(filter)
-                .FirstOrDefaultAsync();
+                var db = _db.GetDatabase();
+                var filter = Builders<BlogDetails>.Filter.Eq(e => e.Id, id);
+                var blogs = await db.GetCollection<BlogDetails>(postsCollectionName)
+                    .Find(filter)
+                    .FirstOrDefaultAsync();
 
-            return blogs;
+                return blogs;
             }
             catch (Exception ex)
             {

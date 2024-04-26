@@ -1,7 +1,10 @@
 using Flexerant.MongoMigration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using MongoDB.Microservice.Blog.Services;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,10 +36,47 @@ builder.Services.AddCors(c => c.AddPolicy("CORSpolicy",
 ));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(ac=>
+    {
+        ac.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Blogs Api", Version = "1.0.0" });
+        ac.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Scheme = "bearer",
+            Description = "Please insert JWT token into field"
+        });
+
+        ac.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] { }
+            }
+        });
+    });
 
 builder.Services.AddSingleton<BlogMongoDbContext>();
 
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", op =>
+        {
+            //op.Authority = "http://localhost:5023/JwtTokenHandler/test";
+            //op.Validate();
+            op.TokenValidationParameters = new TokenValidationParameters { ValidateAudience = false, ValidateIssuer = false, ValidateIssuerSigningKey = false, IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("xl123mw@yahoo.comxl123mw@yahoo.com")) };
+            op.RequireHttpsMetadata = false;
+        });
+builder.Services.AddAuthorization(
+    op => op.AddPolicy("BlogsPolicy", policy => policy.RequireClaim("scope", "Blogs"))
+    );
 
 var app = builder.Build();
 
@@ -59,6 +99,8 @@ if (app.Environment.IsDevelopment())
 
 // Configure the HTTP request pipeline.
 app.UseCors("CORSpolicy");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapSwagger();
