@@ -13,8 +13,8 @@ namespace MongoDB.Microservice.Blog.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
-    [Authorize("BlogsPolicy")]
-    //[Authorize]
+    //[Authorize("BlogsPolicy")]
+    //[Authorize(Roles ="User")]
     public class HomeController : ControllerBase
     {
 
@@ -78,7 +78,7 @@ namespace MongoDB.Microservice.Blog.Controllers
                 //await Task.Delay(5000, cancellationToken);
                 totalTime.Stop();
                 
-                _logger.LogInformation("method1 : {ttt} ms , method2 : {tttt} ms , totalTime : {totalTime}",ttt,tttt, totalTime.ElapsedMilliseconds );
+                //_logger.LogInformation("method1 : {ttt} ms , method2 : {tttt} ms , totalTime : {totalTime}",ttt,tttt, totalTime.ElapsedMilliseconds );
                 return blogs;
                 //return data.data;
             }

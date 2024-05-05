@@ -2,7 +2,14 @@ version: '3.4'
 
 services:
   mongodb.microservice.blog:
-    image: ${DOCKER_REGISTRY-}mongodbmicroserviceblog
+    image: ${DOCKER_REGISTRY-}mongodb.microservice.blog:dev
     build:
       context: .
       dockerfile: MongoDB.Microservice.Blog/Dockerfile
+
+        
+  # mongodb-blogs:
+  #   image: bitnami/mongodb:latest
+  #   ports:
+  #     - 127.0.0.1:27020:27017
+  #   restart: always

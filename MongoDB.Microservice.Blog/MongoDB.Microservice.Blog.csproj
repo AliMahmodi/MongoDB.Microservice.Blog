@@ -22,4 +22,10 @@
 		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="..\.dockerignore">
+	    <DependentUpon>Dockerfile</DependentUpon>
+	  </None>
+	</ItemGroup>
+
 </Project>

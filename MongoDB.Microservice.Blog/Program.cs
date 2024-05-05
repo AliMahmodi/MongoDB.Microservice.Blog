@@ -9,7 +9,19 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
-var mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:ConnectionString") ?? throw new Exception("please Define 'MongoDBSettings:ConnectionString' in appSettings.json'");
+var mongoDbConnectionString = "";
+if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+{
+    mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:DockerConnectionString")
+      ?? throw new Exception("please Define 'MongoDBSettings:ConnectionString' in appSettings.json'");
+}
+else
+{
+    mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:LocalConnectionString") 
+        ?? throw new Exception("please Define 'MongoDBSettings:ConnectionString' in appSettings.json'");
+
+}
+
 var mongoDbDatabaseName = configuration.GetValue<string>("MongoDBSettings:DatabaseName");
 
 var allowedHosts = new string[] { "http://localhost:5174", "http://localhost:5173", "http://localhost:5022" };
@@ -36,7 +48,7 @@ builder.Services.AddCors(c => c.AddPolicy("CORSpolicy",
 ));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(ac=>
+builder.Services.AddSwaggerGen(ac =>
     {
         ac.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Blogs Api", Version = "1.0.0" });
         ac.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -80,14 +92,17 @@ builder.Services.AddAuthorization(
 
 var app = builder.Build();
 
-//adding serilog
-app.UseSerilogRequestLogging();
-
-app.UseMongoMigrations();
+if (builder.Environment.IsDevelopment())
+{
+}
 
 
 if (app.Environment.IsDevelopment())
 {
+    //adding serilog
+    app.UseSerilogRequestLogging();
+
+    //adding swagger
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
@@ -96,6 +111,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseMongoMigrations();
 
 // Configure the HTTP request pipeline.
 app.UseCors("CORSpolicy");
