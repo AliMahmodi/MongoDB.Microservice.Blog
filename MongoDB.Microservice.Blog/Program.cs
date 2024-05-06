@@ -13,12 +13,12 @@ var mongoDbConnectionString = "";
 if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
 {
     mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:DockerConnectionString")
-      ?? throw new Exception("please Define 'MongoDBSettings:ConnectionString' in appSettings.json'");
+      ?? throw new Exception("please Define 'MongoDBSettings:DockerConnectionString' in appSettings.json'");
 }
 else
 {
     mongoDbConnectionString = configuration.GetValue<string>("MongoDBSettings:LocalConnectionString") 
-        ?? throw new Exception("please Define 'MongoDBSettings:ConnectionString' in appSettings.json'");
+        ?? throw new Exception("please Define 'MongoDBSettings:LocalConnectionString' in appSettings.json'");
 
 }
 
