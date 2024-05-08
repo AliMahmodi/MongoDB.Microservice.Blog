@@ -5,7 +5,7 @@ using ThirdParty.Json.LitJson;
 
 namespace MongoDB.Microservice.Blog
 {
-    public class BlogEntity
+    public class BlogModel
     {
         public int? Id { get; set; }
         public string? Title { get; set; }
@@ -63,6 +63,8 @@ namespace MongoDB.Microservice.Blog
     {
         public int Id { get; set; }
         public string? Url { get; set; }
+        public string? Alt { get; set; }
+        public string? Description { get; set; }
         public MediaType MediaType { get; set; }
         public MediaSize MediaSize{ get; set; }
     }

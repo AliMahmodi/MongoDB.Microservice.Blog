@@ -13,19 +13,19 @@ namespace MongoDB.Microservice.Blog.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
-    //[Authorize("BlogsPolicy")]
-    //[Authorize(Roles ="User")]
-    public class HomeController : ControllerBase
+    [Authorize("BlogsPolicy")]
+    [Authorize(Roles ="User")]
+    public class BlogController : ControllerBase
     {
 
 
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<BlogController> _logger;
         private readonly BlogMongoDbContext _db;
         private readonly IConfiguration _config;
         private readonly string postsCollectionName;
 
 
-        public HomeController(ILogger<HomeController> logger, BlogMongoDbContext db, IConfiguration config)
+        public BlogController(ILogger<BlogController> logger, BlogMongoDbContext db, IConfiguration config)
         {
             _logger = logger;
             _db = db;
@@ -35,7 +35,7 @@ namespace MongoDB.Microservice.Blog.Controllers
 
         [HttpGet]
         //public async Task<IReadOnlyList<BlogDetails>> Get(int pageSize = 10, int pageIndex = 1)
-        public async Task<List<BlogEntity>> Get(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default)
+        public async Task<List<BlogModel>> GetPagedAsync(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace MongoDB.Microservice.Blog.Controllers
 
                 if (pageIndex < 1 || pageIndex > 5000000 || pageSize >= 50 || pageSize < 1 || pageIndex * pageSize >= 5000000)
                 {
-                    return new List<BlogEntity>();
+                    return new List<BlogModel>();
                 }
 
                 var db = _db.GetDatabase();
@@ -66,7 +66,7 @@ namespace MongoDB.Microservice.Blog.Controllers
                     .Sort(sort)
                     .Skip((pageIndex - 1) * pageSize)
                     .Limit(pageSize)
-                    .Project(x => new BlogEntity { Id = x.Id, Title = x.Title, Body = x.Body , PublishDate = x.PublishDate })
+                    .Project(x => new BlogModel { Id = x.Id, Title = x.Title, Body = x.Body , PublishDate = x.PublishDate })
                     .ToListAsync(cancellationToken);
 
                 foreach (var blog in blogs)
@@ -85,14 +85,14 @@ namespace MongoDB.Microservice.Blog.Controllers
             catch
             {
                 if (cancellationToken.IsCancellationRequested == true)
-                    return new List<BlogEntity>();
+                    return new List<BlogModel>();
                 else
                     throw;
             }
         }
 
         [HttpGet]
-        public async Task<BlogDetails> Details(int id)
+        public async Task<BlogDetails> Post(int id)
         {
             try
             {
@@ -109,5 +109,16 @@ namespace MongoDB.Microservice.Blog.Controllers
                 throw;
             }
         }
+
+
+        [HttpPost]
+        public async Task<bool> CreateAsync(BlogDetails blog)
+        {
+            var db = _db.GetDatabase();
+            //db.GetCollection<>
+            return false;
+        }
+        
+
     }
 }
