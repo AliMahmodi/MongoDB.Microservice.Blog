@@ -12,18 +12,14 @@ using System.Threading;
 namespace MongoDB.Microservice.Blog.Controllers
 {
     [ApiController]
-    [Route("[controller]/[action]")]
     [Authorize("BlogsPolicy")]
     [Authorize(Roles ="User")]
     public class BlogController : ControllerBase
     {
-
-
         private readonly ILogger<BlogController> _logger;
         private readonly BlogMongoDbContext _db;
         private readonly IConfiguration _config;
         private readonly string postsCollectionName;
-
 
         public BlogController(ILogger<BlogController> logger, BlogMongoDbContext db, IConfiguration config)
         {
@@ -33,6 +29,7 @@ namespace MongoDB.Microservice.Blog.Controllers
             postsCollectionName = _config.GetValue<string>("MongoDBSettings:PostsCollectionName") ?? throw new Exception("MongoDBSettings:PostsCollectionName not defined in appSettings.json");
         }
 
+        [Route("[controller]/[action]")]
         [HttpGet]
         //public async Task<IReadOnlyList<BlogDetails>> Get(int pageSize = 10, int pageIndex = 1)
         public async Task<List<BlogModel>> GetPagedAsync(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default)
@@ -78,7 +75,7 @@ namespace MongoDB.Microservice.Blog.Controllers
                 //await Task.Delay(5000, cancellationToken);
                 totalTime.Stop();
                 
-                //_logger.LogInformation("method1 : {ttt} ms , method2 : {tttt} ms , totalTime : {totalTime}",ttt,tttt, totalTime.ElapsedMilliseconds );
+                _logger.LogInformation("method1 : {ttt} ms , method2 : {tttt} ms , totalTime : {totalTime}",ttt,tttt, totalTime.ElapsedMilliseconds );
                 return blogs;
                 //return data.data;
             }
@@ -91,6 +88,7 @@ namespace MongoDB.Microservice.Blog.Controllers
             }
         }
 
+        [Route("[controller]/[action]/{id}")]
         [HttpGet]
         public async Task<BlogDetails> Post(int id)
         {
@@ -110,7 +108,7 @@ namespace MongoDB.Microservice.Blog.Controllers
             }
         }
 
-
+        [Route("[controller]/[action]")]
         [HttpPost]
         public async Task<bool> CreateAsync(BlogDetails blog)
         {
