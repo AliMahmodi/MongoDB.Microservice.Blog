@@ -1,11 +1,11 @@
-version: '3.4'
+# version: '3.4'
 
-services:
-  mongodb.microservice.blog:
-    image: ${DOCKER_REGISTRY-}mongodb.microservice.blog:dev
-    build:
-      context: .
-      dockerfile: MongoDB.Microservice.Blog/Dockerfile
+# services:
+#   mongodb.microservice.blog:
+#     image: ${DOCKER_REGISTRY-}mongodb.microservice.blog:dev
+#     build:
+#       context: .
+#       dockerfile: MongoDB.Microservice.Blog/Dockerfile
 
         
   # mongodb-blogs:
