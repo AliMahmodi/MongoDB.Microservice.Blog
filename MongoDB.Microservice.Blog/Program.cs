@@ -87,7 +87,7 @@ builder.Services.AddAuthentication("Bearer")
             op.RequireHttpsMetadata = false;
         });
 builder.Services.AddAuthorization(
-    op => op.AddPolicy("BlogsPolicy", policy => policy.RequireClaim("scope", "Blogs"))
+    op => op.AddPolicy("BlogsPolicy", policy => policy.RequireClaim("scope", "Blog"))
     );
 
 var app = builder.Build();

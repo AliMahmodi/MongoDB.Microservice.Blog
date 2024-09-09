@@ -31,7 +31,6 @@ namespace MongoDB.Microservice.Blog.Controllers
 
         [Route("[controller]/[action]")]
         [HttpGet]
-        //public async Task<IReadOnlyList<BlogDetails>> Get(int pageSize = 10, int pageIndex = 1)
         public async Task<List<BlogModel>> GetPagedAsync(int pageSize = 10, int pageIndex = 1, CancellationToken cancellationToken = default)
         {
             try
@@ -50,7 +49,6 @@ namespace MongoDB.Microservice.Blog.Controllers
 
                 var t = Stopwatch.StartNew();
 
-                //var data = await db.GetCollection<BlogDetails>(postsCollectionName).AggregateByPageAsync(filter, sort, pageIndex, pageSize);
                 t.Stop();
                 var ttt = t.ElapsedMilliseconds;
 

@@ -9,4 +9,7 @@ Then run this command:
 
 docker run --name=MongoDB-Blogs  -p 27017:27017 -v /var/lib/docker/volumes/MongoBlogsVol/_data:/bitnami/mongodb/ --user 0  -d bitnami/mongodb:latest
 
+docker run --name=MongoDB-AuthDB  -p 27018:27017 -v  ~/vols/mongo-auth/:/data/db -d mongo
+
+
 
