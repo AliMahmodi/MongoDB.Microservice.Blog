@@ -39,13 +39,8 @@ namespace MongoDB.Microservice.Blog
         public int? UpdateUserId { get; set; }
         public string? UpdateUserName { get; set; }
         public IEnumerable<string>? Tags { get; set; }
-        public string? PostTypeStr
-        {
-            get
-            {
-                return PostTypeDictionaryClass.PostTypeDictionary?.FirstOrDefault(e => e.Key == PostType).Value;
-            }
-        }
+        public string? PostTypeStr => PostTypeDictionaryClass.PostTypeDictionary?.FirstOrDefault(e => e.Key == PostType).Value;
+
         public PostType? PostType { get; set; }
         public int TotalLikesCount { get; set; } = 0;
         public int TotalCommentsCount { get; set; } = 0;
@@ -81,13 +76,18 @@ namespace MongoDB.Microservice.Blog
     public enum MediaType
     {
         Image,
-        Video
+        Video,
+        Voice,
+        Map,
+        File,
+        Link,
+        JSON,
     }
 
     public enum PostType
     {
         Post,
-        Guid,
+        Guide,
         Poll,
         Location,
         Story,
@@ -100,8 +100,8 @@ namespace MongoDB.Microservice.Blog
     {
         public static Dictionary<PostType, string> PostTypeDictionary = new()
         {
-            { PostType.Post, "پست" },
-            {PostType.Guid, "راهنمایی"},
+            {PostType.Post, "پست" },
+            {PostType.Guide, "راهنمایی"},
             {PostType.Poll, "سوال" },
             {PostType.Location, "محل " },
             {PostType.Story, "خاطره" },
